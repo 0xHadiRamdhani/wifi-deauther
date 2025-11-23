@@ -1,0 +1,62 @@
+MIT License
+
+Copyright (c) 2024 Wi-Fi Deauther Project Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+ADDITIONAL TERMS AND CONDITIONS:
+
+1. EDUCATIONAL AND RESEARCH USE ONLY: This software is intended solely for
+   educational purposes, authorized security testing, and legitimate research
+   activities. Users must obtain proper authorization before using this software
+   on any network or system they do not own or have explicit permission to test.
+
+2. LEGAL COMPLIANCE: Users are solely responsible for ensuring compliance with
+   all applicable laws, regulations, and institutional policies in their
+   jurisdiction. This includes but is not limited to computer crime laws,
+   telecommunications regulations, and privacy laws.
+
+3. ETHICAL USE: Users agree to use this software ethically and responsibly,
+   following established security research guidelines and responsible disclosure
+   practices.
+
+4. NO MALICIOUS USE: This software shall not be used for any malicious,
+   illegal, or unethical activities including unauthorized network attacks,
+   data theft, service disruption, or any activity that violates the rights
+   of others.
+
+5. LIMITATION OF LIABILITY: The authors and contributors shall not be held
+   liable for any misuse of this software or any damages resulting from such
+   misuse. Users assume full responsibility for their use of the software.
+
+6. INDEMNIFICATION: Users agree to indemnify and hold harmless the authors,
+   contributors, and distributors of this software from any claims, damages,
+   or legal actions arising from their use of the software.
+
+7. EXPORT COMPLIANCE: Users are responsible for complying with all applicable
+   export control laws and regulations. This software may be subject to
+   export restrictions in certain jurisdictions.
+
+8. REGULATORY COMPLIANCE: Users must ensure compliance with local wireless
+   communication regulations, including but not limited to FCC (United States),
+   ETSI (Europe), and other regional regulatory requirements.
+
+By using this software, you acknowledge that you have read, understood, and
+agree to be bound by these terms and conditions, in addition to the MIT
+License terms above.

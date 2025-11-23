@@ -1,19 +1,38 @@
-[target.x86_64-unknown-linux-musl]
-linker = "x86_64-linux-musl-gcc"
+# Cargo configuration for binary size optimization
 
 [build]
-target = "x86_64-unknown-linux-musl"
+# Use the most aggressive optimization for release builds
+rustflags = ["-C", "link-arg=-s", "-C", "link-arg=-Wl,--gc-sections", "-C", "link-arg=-Wl,--strip-all"]
+
+[target.x86_64-unknown-linux-musl]
+# Static linking with musl for minimal binary size
+rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=-s", "-C", "link-arg=-Wl,--gc-sections"]
+
+[target.x86_64-pc-windows-gnu]
+# Windows-specific optimizations
+rustflags = ["-C", "link-arg=-s", "-C", "link-arg=-Wl,--gc-sections"]
+
+[target.x86_64-apple-darwin]
+# macOS-specific optimizations
+rustflags = ["-C", "link-arg=-Wl,-dead_strip", "-C", "link-arg=-Wl,-x"]
 
 [profile.release]
-lto = true
-codegen-units = 1
-strip = true
-opt-level = "z"
-panic = "abort"
+# Maximum size optimization
+opt-level = "z"     # Optimize for size
+lto = true          # Enable Link Time Optimization
+codegen-units = 1   # Single codegen unit for better optimization
+strip = true        # Strip symbols
+panic = "abort"     # Use abort instead of unwind
 
-# Size optimization flags
-rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=-s"]
+# Additional size optimizations
+debug = false       # No debug info
+overflow-checks = false  # Disable overflow checks in release
+incremental = false # Disable incremental compilation
 
-# Enable all optimizations for size
 [profile.release.package."*"]
+# Optimize all dependencies for size
+opt-level = "z"
+
+[profile.release.build-override]
+# Optimize build scripts for size
 opt-level = "z"
