@@ -42,7 +42,7 @@ A high-performance Wi-Fi deauthentication tool built in Rust with parallel packe
 #### Pre-built Binary (Recommended)
 ```bash
 # Download latest release
-wget https://github.com/your-repo/wifi-deauther/releases/latest/download/wifi-deauther-linux-x64.tar.gz
+wget https://github.com/0xHadiRamdhani/wifi-deauther/releases/latest/download/wifi-deauther-linux-x64.tar.gz
 tar -xzf wifi-deauther-linux-x64.tar.gz
 sudo ./wifi-deauther
 ```
@@ -50,7 +50,7 @@ sudo ./wifi-deauther
 #### Build from Source
 ```bash
 # Clone repository
-git clone https://github.com/your-repo/wifi-deauther.git
+git clone https://github.com/0xHadiRamdhani/wifi-deauther.git
 cd wifi-deauther
 
 # Build optimized binary
