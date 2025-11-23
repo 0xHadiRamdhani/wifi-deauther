@@ -114,7 +114,7 @@ sudo wifi-deauther attack --target AA:BB:CC:DD:EE:FF --packets 100 --interval 10
 └─────────────────────────────┬───────────────────────────────┘
                               │
 ┌─────────────────────────────┴───────────────────────────────┐
-│                    Deauth Engine                            │
+│                       Deauth Engine                         │
 │   ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
 │   │   Engine    │  │   Metrics    │  │  Buffer Pool     │   │
 │   │  Controller │  │  Collector   │  │  (Zero-Copy)     │   │ 
@@ -122,7 +122,7 @@ sudo wifi-deauther attack --target AA:BB:CC:DD:EE:FF --packets 100 --interval 10
 └─────────────────────────────┬───────────────────────────────┘
                               │
 ┌─────────────────────────────┴───────────────────────────────┐
-│                  Network Layer                              │
+│                       Network Layer                         │
 │   ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
 │   │  Interface  │  │   Packet     │  │   Channel        │   │
 │   │  Manager    │  │  Injector    │  │   Hopper         │   │
