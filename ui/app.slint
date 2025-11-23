@@ -1,0 +1,402 @@
+import { Button, StandardButton, LineEdit, ListView, ScrollView, VerticalBox, HorizontalBox, GridBox, Text, Palette, StyleMetrics } from "std-widgets.slint";
+import { Plotters } from "plotters-slint";
+
+export struct Target {
+    mac: string,
+    ssid: string,
+    channel: int,
+    signal: int,
+    packets: int,
+    status: string,
+}
+
+export struct Metrics {
+    packets_per_second: int,
+    success_rate: float,
+    active_targets: int,
+    channel_utilization: float,
+    bytes_transmitted: int,
+}
+
+export component MainWindow inherits Window {
+    title: "Wi-Fi Deauther";
+    preferred-width: 1200px;
+    preferred-height: 800px;
+    background: Palette.window-background;
+    
+    // Properties
+    property<[Target]> targets: [
+        { mac: "AA:BB:CC:DD:EE:FF", ssid: "TestNetwork", channel: 6, signal: -45, packets: 0, status: "Idle" },
+        { mac: "11:22:33:44:55:66", ssid: "AnotherAP", channel: 1, signal: -62, packets: 0, status: "Idle" },
+    ];
+    
+    property<Metrics> metrics: {
+        packets_per-second: 0,
+        success-rate: 0.0,
+        active-targets: 0,
+        channel-utilization: 0.0,
+        bytes-transmitted: 0,
+    };
+    
+    property<bool> is-scanning: false;
+    property<bool> is-attacking: false;
+    property<string> selected-interface: "wlan0";
+    property<int> selected-channel: 6;
+    
+    // Callbacks
+    callback scan-clicked();
+    callback attack-clicked();
+    callback stop-clicked();
+    callback export-clicked();
+    callback interface-changed(string interface);
+    callback channel-changed(int channel);
+    callback target-selected(int index);
+    
+    VerticalLayout {
+        spacing: StyleMetrics.layout-spacing;
+        padding: StyleMetrics.layout-spacing;
+        
+        // Header
+        HorizontalBox {
+            Text {
+                text: "Wi-Fi Deauther";
+                font-size: 24px;
+                font-weight: 700;
+                color: Palette.text;
+            }
+            
+            @rust-icon { source: "@image-icon('/icons/wifi.svg')"; }
+            
+            Rectangle { 
+                preferred-width: 1px;
+                background: Palette.border;
+            }
+            
+            Text {
+                text: "Interface: " + selected-interface;
+                font-size: 14px;
+                color: Palette.text-secondary;
+            }
+            
+            Text {
+                text: "Channel: " + selected-channel;
+                font-size: 14px;
+                color: Palette.text-secondary;
+            }
+            
+            Rectangle { 
+                preferred-width: 1px;
+                background: Palette.border;
+            }
+            
+            StandardButton {
+                text: is-scanning ? "Scanning..." : "Scan";
+                enabled: !is-scanning;
+                clicked => { scan-clicked(); }
+            }
+            
+            StandardButton {
+                text: is-attacking ? "Stop Attack" : "Start Attack";
+                enabled: !is-scanning;
+                clicked => { 
+                    if (is-attacking) {
+                        stop-clicked();
+                    } else {
+                        attack-clicked();
+                    }
+                }
+            }
+            
+            StandardButton {
+                text: "Export PCAP";
+                clicked => { export-clicked(); }
+            }
+        }
+        
+        // Main content
+        HorizontalLayout {
+            spacing: StyleMetrics.layout-spacing;
+            height: 100%;
+            
+            // Left panel - Targets
+            VerticalLayout {
+                preferred-width: 400px;
+                spacing: StyleMetrics.layout-spacing;
+                
+                Text {
+                    text: "Available Targets";
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: Palette.text;
+                }
+                
+                ScrollView {
+                    ListView {
+                        for target[index] in targets: Rectangle {
+                            background: Palette.alternate-background;
+                            border-radius: 4px;
+                            border-width: 1px;
+                            border-color: Palette.border;
+                            
+                            height: 80px;
+                            
+                            GridLayout {
+                                spacing: 4px;
+                                padding: 8px;
+                                
+                                Row {
+                                    Text {
+                                        text: "MAC: " + target.mac;
+                                        font-size: 14px;
+                                        font-weight: 600;
+                                        color: Palette.text;
+                                    }
+                                    
+                                    Text {
+                                        text: "SSID: " + target.ssid;
+                                        font-size: 12px;
+                                        color: Palette.text-secondary;
+                                    }
+                                }
+                                
+                                Row {
+                                    Text {
+                                        text: "Ch: " + target.channel;
+                                        font-size: 12px;
+                                        color: Palette.text-secondary;
+                                    }
+                                    
+                                    Text {
+                                        text: "Signal: " + target.signal + " dBm";
+                                        font-size: 12px;
+                                        color: target.signal > -50 ? #4CAF50 : target.signal > -70 ? #FF9800 : #F44336;
+                                    }
+                                }
+                                
+                                Row {
+                                    Text {
+                                        text: "Packets: " + target.packets;
+                                        font-size: 12px;
+                                        color: Palette.text-secondary;
+                                    }
+                                    
+                                    Text {
+                                        text: "Status: " + target.status;
+                                        font-size: 12px;
+                                        color: target.status == "Attacking" ? #F44336 : #4CAF50;
+                                    }
+                                }
+                            }
+                            
+                            clicked => { target-selected(index); }
+                        }
+                    }
+                }
+            }
+            
+            // Right panel - Metrics and Charts
+            VerticalLayout {
+                spacing: StyleMetrics.layout-spacing;
+                
+                // Metrics cards
+                GridLayout {
+                    spacing: StyleMetrics.layout-spacing;
+                    
+                    Row {
+                        // Packets per second
+                        Rectangle {
+                            background: Palette.alternate-background;
+                            border-radius: 8px;
+                            padding: 16px;
+                            preferred-width: 200px;
+                            preferred-height: 100px;
+                            
+                            VerticalLayout {
+                                spacing: 4px;
+                                
+                                Text {
+                                    text: "Packets/sec";
+                                    font-size: 14px;
+                                    color: Palette.text-secondary;
+                                }
+                                
+                                Text {
+                                    text: metrics.packets-per-second;
+                                    font-size: 24px;
+                                    font-weight: 700;
+                                    color: Palette.text;
+                                }
+                            }
+                        }
+                        
+                        // Success rate
+                        Rectangle {
+                            background: Palette.alternate-background;
+                            border-radius: 8px;
+                            padding: 16px;
+                            preferred-width: 200px;
+                            preferred-height: 100px;
+                            
+                            VerticalLayout {
+                                spacing: 4px;
+                                
+                                Text {
+                                    text: "Success Rate";
+                                    font-size: 14px;
+                                    color: Palette.text-secondary;
+                                }
+                                
+                                Text {
+                                    text: (metrics.success-rate * 100).to-fixed(1) + "%";
+                                    font-size: 24px;
+                                    font-weight: 700;
+                                    color: metrics.success-rate > 0.8 ? #4CAF50 : metrics.success-rate > 0.5 ? #FF9800 : #F44336;
+                                }
+                            }
+                        }
+                        
+                        // Active targets
+                        Rectangle {
+                            background: Palette.alternate-background;
+                            border-radius: 8px;
+                            padding: 16px;
+                            preferred-width: 200px;
+                            preferred-height: 100px;
+                            
+                            VerticalLayout {
+                                spacing: 4px;
+                                
+                                Text {
+                                    text: "Active Targets";
+                                    font-size: 14px;
+                                    color: Palette.text-secondary;
+                                }
+                                
+                                Text {
+                                    text: metrics.active-targets;
+                                    font-size: 24px;
+                                    font-weight: 700;
+                                    color: Palette.text;
+                                }
+                            }
+                        }
+                        
+                        // Channel utilization
+                        Rectangle {
+                            background: Palette.alternate-background;
+                            border-radius: 8px;
+                            padding: 16px;
+                            preferred-width: 200px;
+                            preferred-height: 100px;
+                            
+                            VerticalLayout {
+                                spacing: 4px;
+                                
+                                Text {
+                                    text: "Channel Utilization";
+                                    font-size: 14px;
+                                    color: Palette.text-secondary;
+                                }
+                                
+                                Text {
+                                    text: (metrics.channel-utilization * 100).to-fixed(1) + "%";
+                                    font-size: 24px;
+                                    font-weight: 700;
+                                    color: metrics.channel-utilization < 0.3 ? #4CAF50 : metrics.channel-utilization < 0.7 ? #FF9800 : #F44336;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Real-time chart
+                Rectangle {
+                    background: Palette.alternate-background;
+                    border-radius: 8px;
+                    padding: 16px;
+                    height: 300px;
+                    
+                    VerticalLayout {
+                        spacing: 8px;
+                        
+                        Text {
+                            text: "Real-time Metrics";
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: Palette.text;
+                        }
+                        
+                        // This would be replaced with actual chart component
+                        Rectangle {
+                            background: #E0E0E0;
+                            border-radius: 4px;
+                            height: 250px;
+                            
+                            Text {
+                                text: "Chart placeholder - Packets/sec over time";
+                                color: Palette.text-secondary;
+                                font-size: 14px;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+                }
+                
+                // Bytes transmitted
+                Rectangle {
+                    background: Palette.alternate-background;
+                    border-radius: 8px;
+                    padding: 16px;
+                    height: 80px;
+                    
+                    HorizontalLayout {
+                        spacing: 16px;
+                        
+                        Text {
+                            text: "Bytes Transmitted:";
+                            font-size: 14px;
+                            color: Palette.text-secondary;
+                        }
+                        
+                        Text {
+                            text: metrics.bytes-transmitted;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: Palette.text;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Status bar
+        Rectangle {
+            background: Palette.alternate-background;
+            border-radius: 4px;
+            padding: 8px;
+            height: 30px;
+            
+            HorizontalLayout {
+                spacing: 16px;
+                
+                Text {
+                    text: is-attacking ? "🔴 Attacking" : "🟢 Idle";
+                    font-size: 12px;
+                    color: Palette.text;
+                }
+                
+                Rectangle { 
+                    preferred-width: 1px;
+                    background: Palette.border;
+                }
+                
+                Text {
+                    text: "Ready";
+                    font-size: 12px;
+                    color: Palette.text-secondary;
+                }
+            }
+        }
+    }
+}
