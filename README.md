@@ -58,7 +58,7 @@ brew install libpcap
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/wifi-deauther.git
+git clone https://github.com/0xHadiRamdhani/wifi-deauther.git
 cd wifi-deauther
 
 # Build with optimizations
